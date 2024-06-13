@@ -57,6 +57,7 @@ public class MainApp {
          System.out.println("Car owner = " + car.getUser());
          System.out.println();
       }
+      System.out.println("работа метода getUserByCar - " + userService.getUserByCar(car2));
 
       context.close();
    }
