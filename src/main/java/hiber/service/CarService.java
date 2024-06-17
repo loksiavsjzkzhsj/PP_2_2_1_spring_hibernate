@@ -8,5 +8,5 @@ import java.util.List;
 public interface CarService {
     void add(Car car);
     List<Car> listCars();
-    public User getUserByCar(Car car);
+    User getUserByCar(Car car);
 }
