@@ -1,0 +1,1335 @@
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java b/src/main/java/hiber/dao/UserDao.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java
+rename to src/main/java/hiber/dao/UserDao.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
++++ b/src/main/java/hiber/dao/UserDao.java	(date 1718635538479)
+@@ -7,8 +7,8 @@
+ 
+ public interface UserDao {
+    void add(User user);
+-   void add(Car car);
++   //void add(Car car);
+    List<User> listUsers();
+-   List<Car> listCars();
+-   public User getUserByCar(Car car);
++   //List<Car> listCars();
++   //public User getUserByCar(Car car);
+ }
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java b/src/main/java/hiber/MainApp.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java
+rename to src/main/java/hiber/MainApp.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
++++ b/src/main/java/hiber/MainApp.java	(date 1718637041819)
+@@ -3,6 +3,7 @@
+ import hiber.config.AppConfig;
+ import hiber.model.Car;
+ import hiber.model.User;
++import hiber.service.CarService;
+ import hiber.service.UserService;
+ import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+ 
+@@ -20,6 +21,7 @@
+       User user3 = new User("User3", "Lastname3", "user3@mail.ru");
+       User user4 = new User("User4", "Lastname4", "user4@mail.ru");
+ 
++      CarService carService = context.getBean(CarService.class);
+       Car car1 = new Car("Mercedes-Benz", 600);
+       Car car2 = new Car("BMW", 700);
+       Car car3 = new Car("Audi", 400);
+@@ -30,10 +32,10 @@
+       user3.setCar(car3);
+       user4.setCar(car4);
+ 
+-      car1.setUser(user1);
+-      car2.setUser(user2);
+-      car3.setUser(user3);
+-      car4.setUser(user4);
++      car1.setOwnerCar(user1);
++      car2.setOwnerCar(user2);
++      car3.setOwnerCar(user3);
++      car4.setOwnerCar(user4);
+ 
+       userService.add(user1);
+       userService.add(user2);
+@@ -49,14 +51,16 @@
+          System.out.println();
+       }
+ 
+-      List<Car> cars = userService.listCars();
++      List<Car> cars = carService.listCars();
+       for (Car car : cars) {
+          System.out.println("Id = "+car.getId());
+          System.out.println("Car model = "+car.getModel());
+          System.out.println("Car series = "+car.getSeries());
+-         System.out.println("Car owner = " + car.getUser());
++         System.out.println("Car owner = " + car.getOwnerCar());
+          System.out.println();
+       }
++      System.out.println("работа метода getUserByCar - " + carService.getUserByCar(car2));
++
+ 
+       context.close();
+    }
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java b/src/main/java/hiber/service/UserService.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java
+rename to src/main/java/hiber/service/UserService.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
++++ b/src/main/java/hiber/service/UserService.java	(date 1718635538471)
+@@ -7,7 +7,8 @@
+ 
+ public interface UserService {
+     void add(User user);
+-    void add(Car car);
++//    void add(Car car);
+     List<User> listUsers();
+-    List<Car> listCars();
++//    List<Car> listCars();
++//    public User getUserByCar(Car car);
+ }
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java b/src/main/java/hiber/service/UserServiceImp.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java
+rename to src/main/java/hiber/service/UserServiceImp.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
++++ b/src/main/java/hiber/service/UserServiceImp.java	(date 1718635538469)
+@@ -21,11 +21,11 @@
+       userDao.add(user);
+    }
+ 
+-   @Transactional
+-   @Override
+-   public void add(Car car) {
+-      userDao.add(car);
+-   }
++//   @Transactional
++//   @Override
++//   public void add(Car car) {
++//      userDao.add(car);
++//   }
+ 
+    @Transactional(readOnly = true)
+    @Override
+@@ -33,9 +33,16 @@
+       return userDao.listUsers();
+    }
+ 
+-   @Transactional(readOnly = true)
+-   @Override
+-   public List<Car> listCars() {
+-      return userDao.listCars();
+-   }
++//   @Transactional(readOnly = true)
++//   @Override
++//   public List<Car> listCars() {
++//      return userDao.listCars();
++//   }
++
++//   @Transactional(readOnly = true)
++//   @Override
++//   public User getUserByCar(Car car) {
++//      User user = userDao.getUserByCar(car);
++//      return user;
++//   }
+ }
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java b/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java
+deleted file mode 100644
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
++++ /dev/null	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
+@@ -1,50 +0,0 @@
+-package hiber.dao;
+-
+-import hiber.model.Car;
+-import hiber.model.User;
+-import org.hibernate.SessionFactory;
+-import org.springframework.beans.factory.annotation.Autowired;
+-import org.springframework.stereotype.Repository;
+-
+-import javax.persistence.TypedQuery;
+-import java.util.List;
+-
+-@Repository
+-public class UserDaoImp implements UserDao {
+-
+-   @Autowired
+-   private SessionFactory sessionFactory;
+-
+-   @Override
+-   public void add(User user) {
+-      sessionFactory.getCurrentSession().save(user);
+-   }
+-
+-   @Override
+-   public void add(Car car) {
+-      sessionFactory.getCurrentSession().save(car);
+-   }
+-
+-   @Override
+-   @SuppressWarnings("unchecked")
+-   public List<User> listUsers() {
+-      TypedQuery<User> query=sessionFactory.getCurrentSession().createQuery("from User");
+-      return query.getResultList();
+-   }
+-
+-   @Override
+-   public List<Car> listCars() {
+-      TypedQuery<Car> query=sessionFactory.getCurrentSession().createQuery("from Car");
+-      return query.getResultList();
+-   }
+-
+-   @Override
+-   public User getUserByCar(Car car) {
+-//      String model = car.getModel();
+-//     int series = car.getSeries();
+-      User user = (User) sessionFactory.getCurrentSession().createQuery("from User " +
+-              "where car.model = 'model' and car.series = '10'").getSingleResult();
+-
+-      return user;
+-   }
+-}
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+new file mode 100644
+--- /dev/null	(date 1718637074318)
++++ b/.idea/workspace.xml	(date 1718637074318)
+@@ -0,0 +1,208 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="AutoImportSettings">
++    <option name="autoReloadType" value="SELECTIVE" />
++  </component>
++  <component name="ChangeListManager">
++    <list default="true" id="3522ec14-4ca3-4722-bfea-9f47463eb68f" name="Changes" comment="Реализовал поставленную задачу из задания РР_2.2.1">
++      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/AppConfig.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/Car.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/MainApp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/User.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/UserDao.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/UserDaoImp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/UserService.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/UserServiceImp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/shelved.patch" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/AppConfig.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/Car.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/MainApp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/User.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserDao.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserDaoImp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserService.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserServiceImp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/shelved.patch" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_1.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/hiber/dao/CarDao.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/hiber/dao/CarDaoImp.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/hiber/service/CarService.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/src/main/java/hiber/service/CarServiceImp.java" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/db.properties" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/MainApp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/config/AppConfig.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/dao/UserDao.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/dao/UserDaoImp.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/model/Car.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/model/User.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/service/UserService.class" afterDir="false" />
++      <change afterPath="$PROJECT_DIR$/target/classes/hiber/service/UserServiceImp.class" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/spring_hibernate.iml" beforeDir="false" afterPath="$PROJECT_DIR$/spring_hibernate.iml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/MainApp.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/config/AppConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/config/AppConfig.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/dao/UserDao.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/dao/UserDaoImp.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/model/Car.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/model/User.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/service/UserService.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hiber/service/UserServiceImp.java" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/resources/db.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/db.properties" afterDir="false" />
++    </list>
++    <option name="SHOW_DIALOG" value="false" />
++    <option name="HIGHLIGHT_CONFLICTS" value="true" />
++    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
++    <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="FileTemplateManagerImpl">
++    <option name="RECENT_TEMPLATES">
++      <list>
++        <option value="Interface" />
++        <option value="Class" />
++      </list>
++    </option>
++  </component>
++  <component name="Git.Settings">
++    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
++  </component>
++  <component name="GitHubPullRequestSearchHistory">{
++  &quot;lastFilter&quot;: {
++    &quot;state&quot;: &quot;OPEN&quot;,
++    &quot;assignee&quot;: &quot;loksiavsjzkzhsj&quot;
++  }
++}</component>
++  <component name="GithubPullRequestsUISettings">{
++  &quot;selectedUrlAndAccountId&quot;: {
++    &quot;url&quot;: &quot;git@github.com:loksiavsjzkzhsj/PP_2_2_1_spring_hibernate.git&quot;,
++    &quot;accountId&quot;: &quot;148afbda-6b9c-46cd-b7eb-95fbbcdb78d4&quot;
++  }
++}</component>
++  <component name="ProjectColorInfo">{
++  &quot;associatedIndex&quot;: 2
++}</component>
++  <component name="ProjectId" id="2gYJbf38jl52OCx0HUBn3CAAKeU" />
++  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
++  <component name="ProjectViewState">
++    <option name="hideEmptyMiddlePackages" value="true" />
++    <option name="showLibraryContents" value="true" />
++  </component>
++  <component name="PropertiesComponent">{
++  &quot;keyToString&quot;: {
++    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
++    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
++    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
++    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
++    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
++    &quot;last_opened_file_path&quot;: &quot;/Users/vlader93/Desktop/PP_2_2_1_spring_hibernate/.idea&quot;,
++    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
++    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
++    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
++    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
++    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
++    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
++    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;,
++    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  }
++}</component>
++  <component name="RecentsManager">
++    <key name="CopyFile.RECENT_KEYS">
++      <recent name="$PROJECT_DIR$/.idea" />
++    </key>
++    <key name="MoveFile.RECENT_KEYS">
++      <recent name="$PROJECT_DIR$" />
++    </key>
++  </component>
++  <component name="RunManager">
++    <configuration name="MainApp" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="hiber.MainApp" />
++      <module name="spring-hibernate" />
++      <extension name="coverage">
++        <pattern>
++          <option name="PATTERN" value="hiber.*" />
++          <option name="ENABLED" value="true" />
++        </pattern>
++      </extension>
++      <method v="2">
++        <option name="Make" enabled="true" />
++      </method>
++    </configuration>
++    <recent_temporary>
++      <list>
++        <item itemvalue="Application.MainApp" />
++      </list>
++    </recent_temporary>
++  </component>
++  <component name="SharedIndexes">
++    <attachedChunks>
++      <set>
++        <option value="bundled-jdk-9f38398b9061-18abd8497189-intellij.indexing.shared.core-IU-241.14494.240" />
++        <option value="bundled-js-predefined-1d06a55b98c1-74d2a5396914-JavaScript-IU-241.14494.240" />
++      </set>
++    </attachedChunks>
++  </component>
++  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
++  <component name="TaskManager">
++    <task active="true" id="Default" summary="Default task">
++      <changelist id="3522ec14-4ca3-4722-bfea-9f47463eb68f" name="Changes" comment="" />
++      <created>1715868650524</created>
++      <option name="number" value="Default" />
++      <option name="presentableId" value="Default" />
++      <updated>1715868650524</updated>
++      <workItem from="1715868651525" duration="100000" />
++      <workItem from="1716659661364" duration="10102000" />
++      <workItem from="1716710609520" duration="2303000" />
++      <workItem from="1716713026581" duration="243000" />
++      <workItem from="1716716103004" duration="8082000" />
++      <workItem from="1716727905676" duration="22674000" />
++      <workItem from="1718026717736" duration="6282000" />
++      <workItem from="1718286699144" duration="2076000" />
++      <workItem from="1718633310758" duration="3401000" />
++    </task>
++    <task id="LOCAL-00001" summary="Реализовал поставленную задачу из задания РР_2.2.1">
++      <option name="closed" value="true" />
++      <created>1716669954200</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1716669954200</updated>
++    </task>
++    <option name="localTasksCounter" value="2" />
++    <servers />
++  </component>
++  <component name="TypeScriptGeneratedFilesManager">
++    <option name="version" value="3" />
++  </component>
++  <component name="Vcs.Log.Tabs.Properties">
++    <option name="TAB_STATES">
++      <map>
++        <entry key="MAIN">
++          <value>
++            <State>
++              <option name="CUSTOM_BOOLEAN_PROPERTIES">
++                <map>
++                  <entry key="Show.Git.Branches" value="false" />
++                </map>
++              </option>
++            </State>
++          </value>
++        </entry>
++      </map>
++    </option>
++  </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="Initial commit" />
++    <MESSAGE value="Реализовал поставленную задачу из задания РР_2.2.1" />
++    <option name="LAST_COMMIT_MESSAGE" value="Реализовал поставленную задачу из задания РР_2.2.1" />
++  </component>
++  <component name="XSLT-Support.FileAssociations.UIState">
++    <expand />
++    <select />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/shelved.patch
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/shelved.patch
+new file mode 100644
+--- /dev/null	(date 1718029787679)
++++ b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/shelved.patch	(date 1718029787679)
+@@ -0,0 +1,290 @@
++Index: 2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
++<+>UTF-8
++===================================================================
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java b/src/main/java/hiber/MainApp.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java
++rename to src/main/java/hiber/MainApp.java
++--- a/2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java	
+++++ b/src/main/java/hiber/MainApp.java	
++@@ -30,10 +30,10 @@
++       user3.setCar(car3);
++       user4.setCar(car4);
++ 
++-      car1.setUser(user1);
++-      car2.setUser(user2);
++-      car3.setUser(user3);
++-      car4.setUser(user4);
+++      car1.setOwnerCar(user1);
+++      car2.setOwnerCar(user2);
+++      car3.setOwnerCar(user3);
+++      car4.setOwnerCar(user4);
++ 
++       userService.add(user1);
++       userService.add(user2);
++@@ -54,9 +54,11 @@
++          System.out.println("Id = "+car.getId());
++          System.out.println("Car model = "+car.getModel());
++          System.out.println("Car series = "+car.getSeries());
++-         System.out.println("Car owner = " + car.getUser());
+++         System.out.println("Car owner = " + car.getOwnerCar());
++          System.out.println();
++       }
+++      System.out.println("работа метода getUserByCar - " + userService.getUserByCar(car2));
+++
++ 
++       context.close();
++    }
++Index: .idea/modules.xml
++===================================================================
++diff --git a/.idea/modules.xml b/.idea/modules.xml
++deleted file mode 100644
++--- a/.idea/modules.xml	
+++++ /dev/null	
++@@ -1,8 +0,0 @@
++-<?xml version="1.0" encoding="UTF-8"?>
++-<project version="4">
++-  <component name="ProjectModuleManager">
++-    <modules>
++-      <module fileurl="file://$PROJECT_DIR$/.idea/PP_2_2_1_spring_hibernate.iml" filepath="$PROJECT_DIR$/.idea/PP_2_2_1_spring_hibernate.iml" />
++-    </modules>
++-  </component>
++-</project>
++\ No newline at end of file
++Index: 2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
++<+>UTF-8
++===================================================================
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java b/src/main/java/hiber/model/Car.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java
++rename to src/main/java/hiber/model/Car.java
++--- a/2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java	
+++++ b/src/main/java/hiber/model/Car.java	
++@@ -1,6 +1,7 @@
++ package hiber.model;
++ 
++ import javax.persistence.*;
+++import java.util.Objects;
++ 
++ @Entity
++ @Table(name="cars")
++@@ -9,17 +10,17 @@
++     @Id
++     @GeneratedValue(strategy = GenerationType.IDENTITY)
++     @Column(name="id")
++-    private int id;
+++    private Long id;
++ 
++     @Column(name="model")
++     private String model;
++ 
++     @Column(name="series")
++-    private int series;
+++    private long series;
++ 
++     @OneToOne(cascade = CascadeType.ALL)
++-    @JoinColumn(name="user_id")
++-    private User user;
+++    @JoinColumn(name="users_id")
+++    private User ownerCar;
++ 
++     public Car() {
++     }
++@@ -29,12 +30,12 @@
++         this.series = series;
++     }
++ 
++-    public User getUser() {
++-        return user;
+++    public User getOwnerCar() {
+++        return ownerCar;
++     }
++ 
++-    public void setUser(User user) {
++-        this.user = user;
+++    public void setOwnerCar(User ownerCar) {
+++        this.ownerCar = ownerCar;
++     }
++ 
++     public String getModel() {
++@@ -45,29 +46,42 @@
++         this.model = model;
++     }
++ 
++-    public int getSeries() {
+++    public long getSeries() {
++         return series;
++     }
++ 
++-    public void setSeries(int series) {
+++    public void setSeries(long series) {
++         this.series = series;
++     }
++ 
++-    public int getId() {
+++    public Long getId() {
++         return id;
++     }
++ 
++-    public void setId(int id) {
+++    public void setId(Long id) {
++         this.id = id;
++     }
++ 
+++    @Override
+++    public boolean equals(Object o) {
+++        if (this == o) return true;
+++        if (o == null || getClass() != o.getClass()) return false;
+++        Car car = (Car) o;
+++        return series == car.series && Objects.equals(id, car.id) && Objects.equals(model, car.model) && Objects.equals(ownerCar, car.ownerCar);
+++    }
+++
+++    @Override
+++    public int hashCode() {
+++        return Objects.hash(id, model, series, ownerCar);
+++    }
+++
++     @Override
++     public String toString() {
++         return "Car{" +
++                 "id=" + id +
++                 ", model='" + model + '\'' +
++                 ", series=" + series +
++-                ", user=" + user +
+++                ", user=" + ownerCar +
++                 '}';
++     }
++ }
++Index: 2.2.1. spring_hibernate/src/main/java/hiber/model/User.java
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
++<+>UTF-8
++===================================================================
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/model/User.java b/src/main/java/hiber/model/User.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/model/User.java
++rename to src/main/java/hiber/model/User.java
++--- a/2.2.1. spring_hibernate/src/main/java/hiber/model/User.java	
+++++ b/src/main/java/hiber/model/User.java	
++@@ -19,8 +19,7 @@
++    @Column(name = "email")
++    private String email;
++ 
++-   @OneToOne(cascade = CascadeType.ALL)
++-   @JoinColumn(name="car_id")
+++   @OneToOne(mappedBy = "ownerCar", cascade = CascadeType.ALL)
++    private Car car;
++ 
++    public User() {}
++Index: 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
++<+>UTF-8
++===================================================================
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java b/src/main/java/hiber/dao/UserDaoImp.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java
++rename to src/main/java/hiber/dao/UserDaoImp.java
++--- a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java	
+++++ b/src/main/java/hiber/dao/UserDaoImp.java	
++@@ -2,10 +2,12 @@
++ 
++ import hiber.model.Car;
++ import hiber.model.User;
+++import org.hibernate.Session;
++ import org.hibernate.SessionFactory;
++ import org.springframework.beans.factory.annotation.Autowired;
++ import org.springframework.stereotype.Repository;
++ 
+++import javax.persistence.Query;
++ import javax.persistence.TypedQuery;
++ import java.util.List;
++ 
++@@ -40,11 +42,11 @@
++ 
++    @Override
++    public User getUserByCar(Car car) {
++-//      String model = car.getModel();
++-//     int series = car.getSeries();
++-      User user = (User) sessionFactory.getCurrentSession().createQuery("from User " +
++-              "where car.model = 'model' and car.series = '10'").getSingleResult();
++-
++-      return user;
+++      TypedQuery<User> query = sessionFactory
+++              .getCurrentSession()
+++              .createQuery("from User user where user.car.model = :model and user.car.series = :series");
+++      query.setParameter("model", car.getModel())
+++      .setParameter("series", car.getSeries());
+++      return query.getSingleResult();
++    }
++ }
++Index: .idea/inspectionProfiles/Project_Default.xml
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
++<+>UTF-8
++===================================================================
++diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
++new file mode 100644
++--- /dev/null	
+++++ b/.idea/inspectionProfiles/Project_Default.xml	
++@@ -0,0 +1,6 @@
+++<component name="InspectionProjectProfileManager">
+++  <profile version="1.0">
+++    <option name="myName" value="Project Default" />
+++    <inspection_tool class="JpaQlInspection" enabled="false" level="ERROR" enabled_by_default="false" />
+++  </profile>
+++</component>
++\ No newline at end of file
++Index: 2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
++<+>UTF-8
++===================================================================
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java b/src/main/java/hiber/service/UserServiceImp.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java
++rename to src/main/java/hiber/service/UserServiceImp.java
++--- a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java	
+++++ b/src/main/java/hiber/service/UserServiceImp.java	
++@@ -38,4 +38,11 @@
++    public List<Car> listCars() {
++       return userDao.listCars();
++    }
+++
+++   @Transactional(readOnly = true)
+++   @Override
+++   public User getUserByCar(Car car) {
+++      User user = userDao.getUserByCar(car);
+++      return user;
+++   }
++ }
++Index: 2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
++<+>UTF-8
++===================================================================
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java b/src/main/java/hiber/service/UserService.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java
++rename to src/main/java/hiber/service/UserService.java
++--- a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java	
+++++ b/src/main/java/hiber/service/UserService.java	
++@@ -10,4 +10,5 @@
++     void add(Car car);
++     List<User> listUsers();
++     List<Car> listCars();
+++    public User getUserByCar(Car car);
++ }
++diff --git a/2.2.1. spring_hibernate/spring_hibernate.iml b/spring_hibernate.iml
++rename from 2.2.1. spring_hibernate/spring_hibernate.iml
++rename to spring_hibernate.iml
++diff --git a/2.2.1. spring_hibernate/pom.xml b/pom.xml
++rename from 2.2.1. spring_hibernate/pom.xml
++rename to pom.xml
++diff --git a/2.2.1. spring_hibernate/src/main/resources/db.properties b/src/main/resources/db.properties
++rename from 2.2.1. spring_hibernate/src/main/resources/db.properties
++rename to src/main/resources/db.properties
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/config/AppConfig.java b/src/main/java/hiber/config/AppConfig.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/config/AppConfig.java
++rename to src/main/java/hiber/config/AppConfig.java
++diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java b/src/main/java/hiber/dao/UserDao.java
++rename from 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java
++rename to src/main/java/hiber/dao/UserDao.java
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_1.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_1.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_1.xml
+new file mode 100644
+--- /dev/null	(date 1718637074207)
++++ b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_1.xml	(date 1718637074207)
+@@ -0,0 +1,44 @@
++<changelist name="Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1" date="1718029787679" recycled="true" deleted="true">
++  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/shelved.patch" />
++  <option name="DESCRIPTION" value="Uncommitted changes before Update at 10.06.2024, 17:29 [Changes]" />
++  <binary>
++    <option name="BEFORE_PATH" value="2.2.1. spring_hibernate/target/classes/hiber/MainApp.class" />
++    <option name="AFTER_PATH" value="target/classes/hiber/MainApp.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/MainApp.class" />
++  </binary>
++  <binary>
++    <option name="BEFORE_PATH" />
++    <option name="AFTER_PATH" value="target/classes/hiber/service/UserService.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserService.class" />
++  </binary>
++  <binary>
++    <option name="BEFORE_PATH" />
++    <option name="AFTER_PATH" value="target/classes/hiber/dao/UserDaoImp.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserDaoImp.class" />
++  </binary>
++  <binary>
++    <option name="BEFORE_PATH" />
++    <option name="AFTER_PATH" value="target/classes/hiber/model/Car.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/Car.class" />
++  </binary>
++  <binary>
++    <option name="BEFORE_PATH" />
++    <option name="AFTER_PATH" value="target/classes/hiber/model/User.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/User.class" />
++  </binary>
++  <binary>
++    <option name="BEFORE_PATH" value="2.2.1. spring_hibernate/target/classes/hiber/dao/UserDao.class" />
++    <option name="AFTER_PATH" value="target/classes/hiber/dao/UserDao.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserDao.class" />
++  </binary>
++  <binary>
++    <option name="BEFORE_PATH" />
++    <option name="AFTER_PATH" value="target/classes/hiber/service/UserServiceImp.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/UserServiceImp.class" />
++  </binary>
++  <binary>
++    <option name="BEFORE_PATH" value="2.2.1. spring_hibernate/target/classes/hiber/config/AppConfig.class" />
++    <option name="AFTER_PATH" value="target/classes/hiber/config/AppConfig.class" />
++    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]1/AppConfig.class" />
++  </binary>
++</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_.xml b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_.xml
+new file mode 100644
+--- /dev/null	(date 1718637074208)
++++ b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024__17_29__Changes_.xml	(date 1718637074208)
+@@ -0,0 +1,4 @@
++<changelist name="Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]" date="1718029770072" recycled="false" toDelete="true">
++  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/shelved.patch" />
++  <option name="DESCRIPTION" value="Uncommitted changes before Update at 10.06.2024, 17:29 [Changes]" />
++</changelist>
+\ No newline at end of file
+Index: .idea/jarRepositories.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/jarRepositories.xml b/.idea/jarRepositories.xml
+new file mode 100644
+--- /dev/null	(date 1718029816432)
++++ b/.idea/jarRepositories.xml	(date 1718029816432)
+@@ -0,0 +1,20 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="RemoteRepositoriesConfiguration">
++    <remote-repository>
++      <option name="id" value="central" />
++      <option name="name" value="Central Repository" />
++      <option name="url" value="https://repo.maven.apache.org/maven2" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="central" />
++      <option name="name" value="Maven Central repository" />
++      <option name="url" value="https://repo1.maven.org/maven2" />
++    </remote-repository>
++    <remote-repository>
++      <option name="id" value="jboss.community" />
++      <option name="name" value="JBoss Community repository" />
++      <option name="url" value="https://repository.jboss.org/nexus/content/repositories/public/" />
++    </remote-repository>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/encodings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/encodings.xml b/.idea/encodings.xml
+new file mode 100644
+--- /dev/null	(date 1718029816431)
++++ b/.idea/encodings.xml	(date 1718029816431)
+@@ -0,0 +1,7 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="Encoding">
++    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
++    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+new file mode 100644
+--- /dev/null	(date 1718029816431)
++++ b/.idea/misc.xml	(date 1718029816431)
+@@ -0,0 +1,14 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ExternalStorageConfigurationManager" enabled="true" />
++  <component name="MavenProjectsManager">
++    <option name="originalFiles">
++      <list>
++        <option value="$PROJECT_DIR$/pom.xml" />
++      </list>
++    </option>
++  </component>
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_22" default="true" project-jdk-name="openjdk-22" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/out" />
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/compiler.xml b/.idea/compiler.xml
+new file mode 100644
+--- /dev/null	(date 1718029816430)
++++ b/.idea/compiler.xml	(date 1718029816430)
+@@ -0,0 +1,13 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="CompilerConfiguration">
++    <annotationProcessing>
++      <profile name="Maven default annotation processors profile" enabled="true">
++        <sourceOutputDir name="target/generated-sources/annotations" />
++        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
++        <outputRelativeToContentRoot value="true" />
++        <module name="spring-hibernate" />
++      </profile>
++    </annotationProcessing>
++  </component>
++</project>
+\ No newline at end of file
+Index: target/classes/db.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/target/classes/db.properties b/target/classes/db.properties
+new file mode 100644
+--- /dev/null	(date 1718029985700)
++++ b/target/classes/db.properties	(date 1718029985700)
+@@ -0,0 +1,10 @@
++# MySQL properties
++db.driver=com.mysql.cj.jdbc.Driver
++db.url=jdbc:mysql://localhost:3306/mySQLTest?verifyServerCertificate=false&useSSL=false&requireSSL=false&useLegacyDatetimeCode=false&amp&serverTimezone=UTC
++db.username=root
++db.password=kachalka3
++
++# Hibernate properties
++hibernate.show_sql=true
++hibernate.hbm2ddl.auto=update
++
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java b/src/main/java/hiber/model/Car.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java
+rename to src/main/java/hiber/model/Car.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
++++ b/src/main/java/hiber/model/Car.java	(date 1718029776806)
+@@ -1,6 +1,7 @@
+ package hiber.model;
+ 
+ import javax.persistence.*;
++import java.util.Objects;
+ 
+ @Entity
+ @Table(name="cars")
+@@ -9,17 +10,17 @@
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+     @Column(name="id")
+-    private int id;
++    private Long id;
+ 
+     @Column(name="model")
+     private String model;
+ 
+     @Column(name="series")
+-    private int series;
++    private long series;
+ 
+     @OneToOne(cascade = CascadeType.ALL)
+-    @JoinColumn(name="user_id")
+-    private User user;
++    @JoinColumn(name="users_id")
++    private User ownerCar;
+ 
+     public Car() {
+     }
+@@ -29,12 +30,12 @@
+         this.series = series;
+     }
+ 
+-    public User getUser() {
+-        return user;
++    public User getOwnerCar() {
++        return ownerCar;
+     }
+ 
+-    public void setUser(User user) {
+-        this.user = user;
++    public void setOwnerCar(User ownerCar) {
++        this.ownerCar = ownerCar;
+     }
+ 
+     public String getModel() {
+@@ -45,29 +46,42 @@
+         this.model = model;
+     }
+ 
+-    public int getSeries() {
++    public long getSeries() {
+         return series;
+     }
+ 
+-    public void setSeries(int series) {
++    public void setSeries(long series) {
+         this.series = series;
+     }
+ 
+-    public int getId() {
++    public Long getId() {
+         return id;
+     }
+ 
+-    public void setId(int id) {
++    public void setId(Long id) {
+         this.id = id;
+     }
+ 
++    @Override
++    public boolean equals(Object o) {
++        if (this == o) return true;
++        if (o == null || getClass() != o.getClass()) return false;
++        Car car = (Car) o;
++        return series == car.series && Objects.equals(id, car.id) && Objects.equals(model, car.model) && Objects.equals(ownerCar, car.ownerCar);
++    }
++
++    @Override
++    public int hashCode() {
++        return Objects.hash(id, model, series, ownerCar);
++    }
++
+     @Override
+     public String toString() {
+         return "Car{" +
+                 "id=" + id +
+                 ", model='" + model + '\'' +
+                 ", series=" + series +
+-                ", user=" + user +
++                ", user=" + ownerCar +
+                 '}';
+     }
+ }
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/vcs.xml b/.idea/vcs.xml
+new file mode 100644
+--- /dev/null	(date 1718308130485)
++++ b/.idea/vcs.xml	(date 1718308130485)
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="$PROJECT_DIR$" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: src/main/java/hiber/dao/UserDaoImp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/hiber/dao/UserDaoImp.java b/src/main/java/hiber/dao/UserDaoImp.java
+new file mode 100644
+--- /dev/null	(date 1718635538465)
++++ b/src/main/java/hiber/dao/UserDaoImp.java	(date 1718635538465)
+@@ -0,0 +1,52 @@
++package hiber.dao;
++
++import hiber.model.Car;
++import hiber.model.User;
++import org.hibernate.Session;
++import org.hibernate.SessionFactory;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Repository;
++
++import javax.persistence.Query;
++import javax.persistence.TypedQuery;
++import java.util.List;
++
++@Repository
++public class UserDaoImp implements UserDao {
++
++   @Autowired
++   private SessionFactory sessionFactory;
++
++   @Override
++   public void add(User user) {
++      sessionFactory.getCurrentSession().save(user);
++   }
++
++//   @Override
++//   public void add(Car car) {
++//      sessionFactory.getCurrentSession().save(car);
++//   }
++
++   @Override
++   @SuppressWarnings("unchecked")
++   public List<User> listUsers() {
++      TypedQuery<User> query=sessionFactory.getCurrentSession().createQuery("from User");
++      return query.getResultList();
++   }
++
++//   @Override
++//   public List<Car> listCars() {
++//      TypedQuery<Car> query=sessionFactory.getCurrentSession().createQuery("from Car");
++//      return query.getResultList();
++//   }
++
++//   @Override
++//   public User getUserByCar(Car car) {
++//      TypedQuery<User> query = sessionFactory
++//              .getCurrentSession()
++//              .createQuery("from User user where user.car.model = :model and user.car.series = :series");
++//      query.setParameter("model", car.getModel())
++//      .setParameter("series", car.getSeries());
++//      return query.getSingleResult();
++//   }
++}
+Index: src/main/java/hiber/service/CarService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/hiber/service/CarService.java b/src/main/java/hiber/service/CarService.java
+new file mode 100644
+--- /dev/null	(date 1718635006428)
++++ b/src/main/java/hiber/service/CarService.java	(date 1718635006428)
+@@ -0,0 +1,12 @@
++package hiber.service;
++
++import hiber.model.Car;
++import hiber.model.User;
++
++import java.util.List;
++
++public interface CarService {
++    void add(Car car);
++    List<Car> listCars();
++    public User getUserByCar(Car car);
++}
+Index: src/main/java/hiber/dao/CarDao.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/hiber/dao/CarDao.java b/src/main/java/hiber/dao/CarDao.java
+new file mode 100644
+--- /dev/null	(date 1718634525118)
++++ b/src/main/java/hiber/dao/CarDao.java	(date 1718634525118)
+@@ -0,0 +1,12 @@
++package hiber.dao;
++
++import hiber.model.Car;
++import hiber.model.User;
++
++import java.util.List;
++
++public interface CarDao {
++    void add(Car car);
++    List<Car> listCars();
++    public User getUserByCar(Car car);
++}
+Index: src/main/java/hiber/dao/CarDaoImp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/hiber/dao/CarDaoImp.java b/src/main/java/hiber/dao/CarDaoImp.java
+new file mode 100644
+--- /dev/null	(date 1718637041815)
++++ b/src/main/java/hiber/dao/CarDaoImp.java	(date 1718637041815)
+@@ -0,0 +1,38 @@
++package hiber.dao;
++
++import hiber.model.Car;
++import hiber.model.User;
++import org.hibernate.SessionFactory;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Repository;
++
++import javax.persistence.TypedQuery;
++import java.util.List;
++
++@Repository
++public class CarDaoImp implements CarDao {
++
++    @Autowired
++    private SessionFactory sessionFactory;
++
++    @Override
++    public void add(Car car) {
++        sessionFactory.getCurrentSession().save(car);
++    }
++
++    @Override
++    public List<Car> listCars() {
++        TypedQuery<Car> query=sessionFactory.getCurrentSession().createQuery("from Car");
++        return query.getResultList();
++    }
++
++    @Override
++    public User getUserByCar(Car car) {
++        TypedQuery<User> query = sessionFactory
++                .getCurrentSession()
++                .createQuery("from User user where user.car.model = :model and user.car.series = :series");
++        query.setParameter("model", car.getModel())
++                .setParameter("series", car.getSeries());
++        return query.getSingleResult();
++    }
++}
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/model/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/model/User.java b/src/main/java/hiber/model/User.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/model/User.java
+rename to src/main/java/hiber/model/User.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/model/User.java	(revision 5283f048e0fea945bf538727df2b8e46bbc8a6ea)
++++ b/src/main/java/hiber/model/User.java	(date 1718029776811)
+@@ -19,8 +19,7 @@
+    @Column(name = "email")
+    private String email;
+ 
+-   @OneToOne(cascade = CascadeType.ALL)
+-   @JoinColumn(name="car_id")
++   @OneToOne(mappedBy = "ownerCar", cascade = CascadeType.ALL)
+    private Car car;
+ 
+    public User() {}
+Index: src/main/java/hiber/service/CarServiceImp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/hiber/service/CarServiceImp.java b/src/main/java/hiber/service/CarServiceImp.java
+new file mode 100644
+--- /dev/null	(date 1718635538472)
++++ b/src/main/java/hiber/service/CarServiceImp.java	(date 1718635538472)
+@@ -0,0 +1,36 @@
++package hiber.service;
++
++import hiber.dao.CarDao;
++import hiber.model.Car;
++import hiber.model.User;
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++
++import java.util.List;
++
++@Service
++public class CarServiceImp  implements CarService {
++
++    @Autowired
++    private CarDao carDao;
++
++    @Transactional
++    @Override
++    public void add(Car car) {
++        carDao.add(car);
++    }
++
++    @Transactional(readOnly = true)
++    @Override
++    public List<Car> listCars() {
++        return carDao.listCars();
++    }
++
++    @Transactional(readOnly = true)
++    @Override
++    public User getUserByCar(Car car) {
++        User user = carDao.getUserByCar(car);
++        return user;
++    }
++}
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+new file mode 100644
+--- /dev/null	(date 1718029776819)
++++ b/.idea/inspectionProfiles/Project_Default.xml	(date 1718029776819)
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="JpaQlInspection" enabled="false" level="ERROR" enabled_by_default="false" />
++  </profile>
++</component>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/shelved.patch
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/shelved.patch b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/shelved.patch
+new file mode 100644
+--- /dev/null	(date 1718029787677)
++++ b/.idea/shelf/Uncommitted_changes_before_Update_at_10_06_2024,_17_29_[Changes]/shelved.patch	(date 1718029787677)
+@@ -0,0 +1,38 @@
++Index: .idea/misc.xml
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
++<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\n  <component name=\"MavenProjectsManager\">\n    <option name=\"originalFiles\">\n      <list>\n        <option value=\"$PROJECT_DIR$/2.2.1. spring_hibernate/pom.xml\" />\n      </list>\n    </option>\n  </component>\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_18\" default=\"true\" project-jdk-name=\"18\" project-jdk-type=\"JavaSDK\">\n    <output url=\"file://$PROJECT_DIR$/out\" />\n  </component>\n</project>
++===================================================================
++diff --git a/.idea/misc.xml b/.idea/misc.xml
++--- a/.idea/misc.xml	
+++++ b/.idea/misc.xml	
++@@ -5,6 +5,7 @@
++     <option name="originalFiles">
++       <list>
++         <option value="$PROJECT_DIR$/2.2.1. spring_hibernate/pom.xml" />
+++        <option value="$PROJECT_DIR$/pom.xml" />
++       </list>
++     </option>
++   </component>
++Index: .idea/encodings.xml
++IDEA additional info:
++Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
++<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"Encoding\">\n    <file url=\"file://$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java\" charset=\"UTF-8\" />\n    <file url=\"file://$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/resources\" charset=\"UTF-8\" />\n  </component>\n</project>
++===================================================================
++diff --git a/.idea/encodings.xml b/.idea/encodings.xml
++--- a/.idea/encodings.xml	
+++++ b/.idea/encodings.xml	
++@@ -1,7 +1,7 @@
++ <?xml version="1.0" encoding="UTF-8"?>
++ <project version="4">
++   <component name="Encoding">
++-    <file url="file://$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/java" charset="UTF-8" />
++-    <file url="file://$PROJECT_DIR$/2.2.1. spring_hibernate/src/main/resources" charset="UTF-8" />
+++    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+++    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
++   </component>
++ </project>
++\ No newline at end of file
++diff --git a/2.2.1. spring_hibernate/target/classes/db.properties b/target/classes/db.properties
++rename from 2.2.1. spring_hibernate/target/classes/db.properties
++rename to target/classes/db.properties
+diff --git a/2.2.1. spring_hibernate/spring_hibernate.iml b/spring_hibernate.iml
+rename from 2.2.1. spring_hibernate/spring_hibernate.iml
+rename to spring_hibernate.iml
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/config/AppConfig.java b/src/main/java/hiber/config/AppConfig.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/config/AppConfig.java
+rename to src/main/java/hiber/config/AppConfig.java
+diff --git a/2.2.1. spring_hibernate/pom.xml b/pom.xml
+rename from 2.2.1. spring_hibernate/pom.xml
+rename to pom.xml
+diff --git a/2.2.1. spring_hibernate/src/main/resources/db.properties b/src/main/resources/db.properties
+rename from 2.2.1. spring_hibernate/src/main/resources/db.properties
+rename to src/main/resources/db.properties

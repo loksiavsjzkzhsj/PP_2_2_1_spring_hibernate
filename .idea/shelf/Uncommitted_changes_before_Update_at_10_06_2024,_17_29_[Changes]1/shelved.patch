@@ -1,0 +1,290 @@
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java b/src/main/java/hiber/MainApp.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java
+rename to src/main/java/hiber/MainApp.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/MainApp.java	
++++ b/src/main/java/hiber/MainApp.java	
+@@ -30,10 +30,10 @@
+       user3.setCar(car3);
+       user4.setCar(car4);
+ 
+-      car1.setUser(user1);
+-      car2.setUser(user2);
+-      car3.setUser(user3);
+-      car4.setUser(user4);
++      car1.setOwnerCar(user1);
++      car2.setOwnerCar(user2);
++      car3.setOwnerCar(user3);
++      car4.setOwnerCar(user4);
+ 
+       userService.add(user1);
+       userService.add(user2);
+@@ -54,9 +54,11 @@
+          System.out.println("Id = "+car.getId());
+          System.out.println("Car model = "+car.getModel());
+          System.out.println("Car series = "+car.getSeries());
+-         System.out.println("Car owner = " + car.getUser());
++         System.out.println("Car owner = " + car.getOwnerCar());
+          System.out.println();
+       }
++      System.out.println("работа метода getUserByCar - " + userService.getUserByCar(car2));
++
+ 
+       context.close();
+    }
+Index: .idea/modules.xml
+===================================================================
+diff --git a/.idea/modules.xml b/.idea/modules.xml
+deleted file mode 100644
+--- a/.idea/modules.xml	
++++ /dev/null	
+@@ -1,8 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="ProjectModuleManager">
+-    <modules>
+-      <module fileurl="file://$PROJECT_DIR$/.idea/PP_2_2_1_spring_hibernate.iml" filepath="$PROJECT_DIR$/.idea/PP_2_2_1_spring_hibernate.iml" />
+-    </modules>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java b/src/main/java/hiber/model/Car.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java
+rename to src/main/java/hiber/model/Car.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/model/Car.java	
++++ b/src/main/java/hiber/model/Car.java	
+@@ -1,6 +1,7 @@
+ package hiber.model;
+ 
+ import javax.persistence.*;
++import java.util.Objects;
+ 
+ @Entity
+ @Table(name="cars")
+@@ -9,17 +10,17 @@
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+     @Column(name="id")
+-    private int id;
++    private Long id;
+ 
+     @Column(name="model")
+     private String model;
+ 
+     @Column(name="series")
+-    private int series;
++    private long series;
+ 
+     @OneToOne(cascade = CascadeType.ALL)
+-    @JoinColumn(name="user_id")
+-    private User user;
++    @JoinColumn(name="users_id")
++    private User ownerCar;
+ 
+     public Car() {
+     }
+@@ -29,12 +30,12 @@
+         this.series = series;
+     }
+ 
+-    public User getUser() {
+-        return user;
++    public User getOwnerCar() {
++        return ownerCar;
+     }
+ 
+-    public void setUser(User user) {
+-        this.user = user;
++    public void setOwnerCar(User ownerCar) {
++        this.ownerCar = ownerCar;
+     }
+ 
+     public String getModel() {
+@@ -45,29 +46,42 @@
+         this.model = model;
+     }
+ 
+-    public int getSeries() {
++    public long getSeries() {
+         return series;
+     }
+ 
+-    public void setSeries(int series) {
++    public void setSeries(long series) {
+         this.series = series;
+     }
+ 
+-    public int getId() {
++    public Long getId() {
+         return id;
+     }
+ 
+-    public void setId(int id) {
++    public void setId(Long id) {
+         this.id = id;
+     }
+ 
++    @Override
++    public boolean equals(Object o) {
++        if (this == o) return true;
++        if (o == null || getClass() != o.getClass()) return false;
++        Car car = (Car) o;
++        return series == car.series && Objects.equals(id, car.id) && Objects.equals(model, car.model) && Objects.equals(ownerCar, car.ownerCar);
++    }
++
++    @Override
++    public int hashCode() {
++        return Objects.hash(id, model, series, ownerCar);
++    }
++
+     @Override
+     public String toString() {
+         return "Car{" +
+                 "id=" + id +
+                 ", model='" + model + '\'' +
+                 ", series=" + series +
+-                ", user=" + user +
++                ", user=" + ownerCar +
+                 '}';
+     }
+ }
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/model/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/model/User.java b/src/main/java/hiber/model/User.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/model/User.java
+rename to src/main/java/hiber/model/User.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/model/User.java	
++++ b/src/main/java/hiber/model/User.java	
+@@ -19,8 +19,7 @@
+    @Column(name = "email")
+    private String email;
+ 
+-   @OneToOne(cascade = CascadeType.ALL)
+-   @JoinColumn(name="car_id")
++   @OneToOne(mappedBy = "ownerCar", cascade = CascadeType.ALL)
+    private Car car;
+ 
+    public User() {}
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java b/src/main/java/hiber/dao/UserDaoImp.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java
+rename to src/main/java/hiber/dao/UserDaoImp.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDaoImp.java	
++++ b/src/main/java/hiber/dao/UserDaoImp.java	
+@@ -2,10 +2,12 @@
+ 
+ import hiber.model.Car;
+ import hiber.model.User;
++import org.hibernate.Session;
+ import org.hibernate.SessionFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Repository;
+ 
++import javax.persistence.Query;
+ import javax.persistence.TypedQuery;
+ import java.util.List;
+ 
+@@ -40,11 +42,11 @@
+ 
+    @Override
+    public User getUserByCar(Car car) {
+-//      String model = car.getModel();
+-//     int series = car.getSeries();
+-      User user = (User) sessionFactory.getCurrentSession().createQuery("from User " +
+-              "where car.model = 'model' and car.series = '10'").getSingleResult();
+-
+-      return user;
++      TypedQuery<User> query = sessionFactory
++              .getCurrentSession()
++              .createQuery("from User user where user.car.model = :model and user.car.series = :series");
++      query.setParameter("model", car.getModel())
++      .setParameter("series", car.getSeries());
++      return query.getSingleResult();
+    }
+ }
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/inspectionProfiles/Project_Default.xml b/.idea/inspectionProfiles/Project_Default.xml
+new file mode 100644
+--- /dev/null	
++++ b/.idea/inspectionProfiles/Project_Default.xml	
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="JpaQlInspection" enabled="false" level="ERROR" enabled_by_default="false" />
++  </profile>
++</component>
+\ No newline at end of file
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java b/src/main/java/hiber/service/UserServiceImp.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java
+rename to src/main/java/hiber/service/UserServiceImp.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserServiceImp.java	
++++ b/src/main/java/hiber/service/UserServiceImp.java	
+@@ -38,4 +38,11 @@
+    public List<Car> listCars() {
+       return userDao.listCars();
+    }
++
++   @Transactional(readOnly = true)
++   @Override
++   public User getUserByCar(Car car) {
++      User user = userDao.getUserByCar(car);
++      return user;
++   }
+ }
+Index: 2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java b/src/main/java/hiber/service/UserService.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java
+rename to src/main/java/hiber/service/UserService.java
+--- a/2.2.1. spring_hibernate/src/main/java/hiber/service/UserService.java	
++++ b/src/main/java/hiber/service/UserService.java	
+@@ -10,4 +10,5 @@
+     void add(Car car);
+     List<User> listUsers();
+     List<Car> listCars();
++    public User getUserByCar(Car car);
+ }
+diff --git a/2.2.1. spring_hibernate/spring_hibernate.iml b/spring_hibernate.iml
+rename from 2.2.1. spring_hibernate/spring_hibernate.iml
+rename to spring_hibernate.iml
+diff --git a/2.2.1. spring_hibernate/pom.xml b/pom.xml
+rename from 2.2.1. spring_hibernate/pom.xml
+rename to pom.xml
+diff --git a/2.2.1. spring_hibernate/src/main/resources/db.properties b/src/main/resources/db.properties
+rename from 2.2.1. spring_hibernate/src/main/resources/db.properties
+rename to src/main/resources/db.properties
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/config/AppConfig.java b/src/main/java/hiber/config/AppConfig.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/config/AppConfig.java
+rename to src/main/java/hiber/config/AppConfig.java
+diff --git a/2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java b/src/main/java/hiber/dao/UserDao.java
+rename from 2.2.1. spring_hibernate/src/main/java/hiber/dao/UserDao.java
+rename to src/main/java/hiber/dao/UserDao.java
